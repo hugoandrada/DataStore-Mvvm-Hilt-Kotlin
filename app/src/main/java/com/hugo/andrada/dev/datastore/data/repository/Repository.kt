@@ -15,4 +15,12 @@ class Repository @Inject constructor(
     fun readSaveData(): Flow<Boolean> {
         return dataStore.readSaveDataStore()
     }
+
+    suspend fun saveTime(time: Long) {
+        dataStore.saveTime(time)
+    }
+
+    fun readTime(): Flow<Long> {
+        return dataStore.readTime()
+    }
 }

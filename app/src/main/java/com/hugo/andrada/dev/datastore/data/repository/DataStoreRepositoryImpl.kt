@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.hugo.andrada.dev.datastore.core.Constants.DATA_STORE_KEY
 import com.hugo.andrada.dev.datastore.core.Constants.DATA_STORE_NAME
@@ -19,16 +20,37 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = DAT
 
 class DataStoreRepositoryImpl(context: Context): DataStoreRepository {
 
-    private object PreferencesKey {
+    companion object PreferencesKey {
         val mikey = booleanPreferencesKey(name = DATA_STORE_KEY)
+        val miKeyTime = longPreferencesKey(name = "key_time")
     }
 
     private val dataStore = context.dataStore
 
     override suspend fun saveDataStore(completed: Boolean) {
         dataStore.edit { preferences ->
-            preferences[PreferencesKey.mikey] = completed
+            preferences[mikey] = completed
         }
+    }
+
+    override suspend fun saveTime(time: Long) {
+        dataStore.edit { preferences ->
+            preferences[miKeyTime] = time
+        }
+    }
+
+    override fun readTime(): Flow<Long> {
+        return dataStore.data
+            .catch { exception ->
+                if (exception is IOException) {
+                    emit(emptyPreferences())
+                } else {
+                    throw exception
+                }
+            }.map { preferences ->
+                val state = preferences[miKeyTime] ?: 0L
+                state
+            }
     }
 
     override fun readSaveDataStore(): Flow<Boolean> {
@@ -41,7 +63,7 @@ class DataStoreRepositoryImpl(context: Context): DataStoreRepository {
                 }
             }
             .map { preferences ->
-                val state = preferences[PreferencesKey.mikey] ?: false
+                val state = preferences[mikey] ?: false
                 state
             }
     }
