@@ -2,7 +2,7 @@ package com.hugo.andrada.dev.datastore.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.hugo.andrada.dev.datastore.data.repository.Repository
+import com.hugo.andrada.dev.datastore.domain.repository.DataStoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val repository: Repository
+    private val repository: DataStoreRepository
 ): ViewModel() {
 
     private val _stateCompleted = MutableStateFlow(false)
@@ -23,16 +23,20 @@ class MainViewModel @Inject constructor(
     private val _time = MutableStateFlow<Long>(0)
     val time = _time.asStateFlow()
 
+    private val _name = MutableStateFlow<String>("")
+    val name = _name.asStateFlow()
+
 
     init {
         readDataStoreState()
         readTimeDataStore()
+        readNameDataStore()
     }
 
 
     fun saveDataStoreState(completed: Boolean) {
         viewModelScope.launch {
-            repository.saveData(completed)
+            repository.saveDataStore(completed)
         }
     }
 
@@ -42,8 +46,14 @@ class MainViewModel @Inject constructor(
         }
     }
 
+    fun saveNameDataStore(name: String) {
+        viewModelScope.launch {
+            repository.saveName(name)
+        }
+    }
+
     private fun readDataStoreState() {
-        repository.readSaveData().onEach { isData ->
+        repository.readSaveDataStore().onEach { isData ->
             _stateCompleted.value = isData
         }.launchIn(viewModelScope)
     }
@@ -51,6 +61,12 @@ class MainViewModel @Inject constructor(
     private fun readTimeDataStore() {
         repository.readTime().onEach { savedTime ->
             _time.value = savedTime
+        }.launchIn(viewModelScope)
+    }
+
+    private fun readNameDataStore() {
+        repository.readName().onEach { saveName ->
+            _name.value = saveName
         }.launchIn(viewModelScope)
     }
 }

@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity() {
 
         setDataStore()
         setTimeState()
+        setNameState()
         setButton()
     }
 
@@ -46,8 +47,23 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launchWhenCreated {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.time.collect { time ->
-                    binding.textTime.text = if (time == 0L) "No time saved." else "Time = $time"
-                    binding.progressBar.isVisible = time < System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(1)
+                    if (time < System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(2)) {
+                        binding.textTime.text = "Time over."
+                        binding.progressBar.isVisible = true
+                    } else {
+                        binding.textTime.text = "Time = $time"
+                        binding.progressBar.isVisible = false
+                    }
+                }
+            }
+        }
+    }
+
+    private fun setNameState() {
+        lifecycleScope.launchWhenCreated {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.name.collect { name ->
+                    binding.name.text = if (name.isEmpty()) "No name" else "Name = $name"
                 }
             }
         }
@@ -57,11 +73,15 @@ class MainActivity : AppCompatActivity() {
         binding.btnState.setOnClickListener {
             viewModel.saveDataStoreState(true)
             val time = System.currentTimeMillis()
+            val name = binding.nameText.text.toString()
             viewModel.saveTimeDataStore(time)
+            viewModel.saveNameDataStore(name)
+            binding.nameText.text.clear()
         }
         binding.btnClear.setOnClickListener {
             viewModel.saveDataStoreState(false)
             viewModel.saveTimeDataStore(0)
+            viewModel.saveNameDataStore("")
         }
     }
 }
