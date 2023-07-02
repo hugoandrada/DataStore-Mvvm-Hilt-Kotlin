@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.hugo.andrada.dev.datastore.domain.repository.DataStoreRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -17,8 +16,8 @@ class MainViewModel @Inject constructor(
     private val repository: DataStoreRepository
 ): ViewModel() {
 
-    private val _stateCompleted = MutableStateFlow(false)
-    val stateCompleted: StateFlow<Boolean> = _stateCompleted
+    private val _stateBoolean = MutableStateFlow(false)
+    val stateBoolean = _stateBoolean.asStateFlow()
 
     private val _time = MutableStateFlow<Long>(0)
     val time = _time.asStateFlow()
@@ -28,15 +27,15 @@ class MainViewModel @Inject constructor(
 
 
     init {
-        readDataStoreState()
+        readBooleanDataStore()
         readTimeDataStore()
         readNameDataStore()
     }
 
 
-    fun saveDataStoreState(completed: Boolean) {
+    fun saveBoolean() {
         viewModelScope.launch {
-            repository.saveDataStore(completed)
+            repository.saveBoolean()
         }
     }
 
@@ -52,9 +51,9 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    private fun readDataStoreState() {
+    private fun readBooleanDataStore() {
         repository.readSaveDataStore().onEach { isData ->
-            _stateCompleted.value = isData
+            _stateBoolean.value = isData
         }.launchIn(viewModelScope)
     }
 

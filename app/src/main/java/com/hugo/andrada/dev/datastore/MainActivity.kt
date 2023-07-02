@@ -32,11 +32,10 @@ class MainActivity : AppCompatActivity() {
     private fun setDataStore() {
         lifecycleScope.launchWhenCreated {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.stateCompleted.collect { state ->
-                    if (state) {
-                        binding.txtState.text = " Data = TRUE"
-                    } else {
-                        binding.txtState.text = "No data saved."
+                viewModel.stateBoolean.collect { state ->
+                    when {
+                        state -> binding.txtState.text = " State = " + state.toString()
+                        else -> binding.txtState.text = "No data saved."
                     }
                 }
             }
@@ -47,12 +46,15 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launchWhenCreated {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.time.collect { time ->
-                    if (time < System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(2)) {
-                        binding.textTime.text = "Time over."
-                        binding.progressBar.isVisible = true
-                    } else {
-                        binding.textTime.text = "Time = $time"
-                        binding.progressBar.isVisible = false
+                    when {
+                        (time < System.currentTimeMillis() - TimeUnit.MINUTES.toMillis(2)) -> {
+                            binding.textTime.text = "Time over."
+                            binding.progressBar.isVisible = true
+                        }
+                        else -> {
+                            binding.textTime.text = "Time = $time"
+                            binding.progressBar.isVisible = false
+                        }
                     }
                 }
             }
@@ -71,15 +73,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun setButton() {
         binding.btnState.setOnClickListener {
-            viewModel.saveDataStoreState(true)
             val time = System.currentTimeMillis()
             val name = binding.nameText.text.toString()
             viewModel.saveTimeDataStore(time)
             viewModel.saveNameDataStore(name)
-            binding.nameText.text.clear()
+            viewModel.saveBoolean()
+            binding.nameText.text?.clear()
         }
         binding.btnClear.setOnClickListener {
-            viewModel.saveDataStoreState(false)
+            viewModel.saveBoolean()
             viewModel.saveTimeDataStore(0)
             viewModel.saveNameDataStore("")
         }

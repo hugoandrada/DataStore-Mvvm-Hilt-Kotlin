@@ -22,7 +22,7 @@ class DataStoreRepositoryImpl @Inject constructor(
 
     companion object PreferencesKey {
         const val PREFERENCES_NAME = "my_preferences"
-        val mikey = booleanPreferencesKey(name = "key_boolean")
+        val mikeyBoolean = booleanPreferencesKey(name = "key_boolean")
         val miKeyTime = longPreferencesKey(name = "key_long")
         val miKeyName = stringPreferencesKey(name = "key_string")
     }
@@ -31,9 +31,10 @@ class DataStoreRepositoryImpl @Inject constructor(
         PREFERENCES_NAME
     )
 
-    override suspend fun saveDataStore(completed: Boolean) {
+    override suspend fun saveBoolean() {
         context.dataStore.edit { preferences ->
-            preferences[mikey] = completed
+            val current = preferences[mikeyBoolean] ?: false
+            preferences[mikeyBoolean] = !current
         }
     }
 
@@ -73,7 +74,7 @@ class DataStoreRepositoryImpl @Inject constructor(
                 }
             }
             .map { preferences ->
-                val state = preferences[mikey] ?: false
+                val state = preferences[mikeyBoolean] ?: false
                 state
             }
     }

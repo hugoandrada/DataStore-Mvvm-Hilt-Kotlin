@@ -7,7 +7,7 @@ interface DataStoreRepository {
     suspend fun saveName(name: String)
     fun readName(): Flow<String>
 
-    suspend fun saveDataStore(completed: Boolean)
+    suspend fun saveBoolean()
     fun readSaveDataStore(): Flow<Boolean>
 
     suspend fun saveTime(time: Long)
