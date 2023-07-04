@@ -10,6 +10,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.hugo.andrada.dev.datastore.databinding.ActivityMainBinding
 import com.hugo.andrada.dev.datastore.presentation.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 @AndroidEntryPoint
@@ -30,7 +31,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setDataStore() {
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.stateBoolean.collect { state ->
                     when {
@@ -43,7 +44,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setTimeState() {
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.time.collect { time ->
                     when {
@@ -62,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setNameState() {
-        lifecycleScope.launchWhenCreated {
+        lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.name.collect { name ->
                     binding.name.text = if (name.isEmpty()) "No name" else "Name = $name"
